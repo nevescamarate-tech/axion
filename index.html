@@ -605,7 +605,7 @@ $('toast').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const i
 setInterval(check,20000);
 
 // ---- definições ----
-function note(t){$('msg').textContent=t;$('msg').classList.add('show');clearTimeout(note.t);note.t=setTimeout(()=>$('msg').classList.remove('show'),2800)}
+function note(t,ms){$('msg').textContent=t;$('msg').classList.add('show');clearTimeout(note.t);note.t=setTimeout(()=>$('msg').classList.remove('show'),ms||2800)}
 $('exp').onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(items));note('Cópia copiada. Guarda-a numa nota.')}catch(e){$('imp').value=JSON.stringify(items);note('Copia o texto da caixa abaixo.')}};
 $('impB').onclick=async()=>{let a;try{a=JSON.parse($('imp').value)}catch(e){note('Texto inválido.');return}if(!Array.isArray(a)){note('Texto inválido.');return}let n=0;for(const x of a)if(x&&x.id&&x.titulo){await put(x);n++}$('imp').value='';note(n+' lembretes importados.')};
 $('allIcs').onclick=()=>{const p=items.filter(x=>!x.feito&&x.quando!=null&&(x.quando>Date.now()||x.recur));if(!p.length){note('Não há lembretes por fazer.');return}saveIcs(p,'recado-todos.ics')};
@@ -680,9 +680,9 @@ const b64u=s=>{const p='='.repeat((4-s.length%4)%4),b=atob((s+p).replace(/-/g,'+
 let pushOn=false;
 async function pushState(){try{if(!('serviceWorker' in navigator)||!('PushManager' in window))return;const reg=await navigator.serviceWorker.ready;pushOn=!!(await reg.pushManager.getSubscription())&&Notification.permission==='granted'}catch(e){}renderAcc()}
 async function enablePush(){if(!('serviceWorker' in navigator)||!('PushManager' in window)){note(isIOS&&!standalone?'No iPhone, instala primeiro a app no ecrã principal.':'Este browser não suporta avisos.');return}
-  try{const perm=await Notification.requestPermission();if(perm!=='granted'){note('Sem autorização para avisos. Ativa nas definições do telemóvel.');return}
+  try{const before=Notification.permission;const perm=await Notification.requestPermission();if(perm!=='granted'){note(perm==='denied'?(before==='denied'?'Notificações bloqueadas para o Axion (estado: bloqueado). Vê Definições › Apps › Axion › Notificações.':'Recusaste o pedido. Volta a carregar e escolhe Permitir.'):'O Chrome não mostrou o pedido (estado: '+perm+'). Vê se aparece um sininho riscado na barra de cima e toca nele, ou desliga "mensagens mais discretas" nas notificações do Chrome.',9000);return}
    const reg=await navigator.serviceWorker.ready;let su=await reg.pushManager.getSubscription();if(!su){let pk=CFG.vapidPublicKey;if(!pk){const r=await fetch(CFG.supabaseUrl+'/functions/v1/send-due?pub=1');pk=(await r.json()).publicKey}su=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(pk)})}
-   const j=su.toJSON();const {error}=await sb.from('push_subs').upsert({endpoint:j.endpoint,user_id:user.id,sub:j});if(error)throw error;pushOn=true;note('Avisos ativados neste telemóvel.')}catch(e){note('Não foi possível ativar os avisos.')}renderAcc()}
+   const j=su.toJSON();const {error}=await sb.from('push_subs').upsert({endpoint:j.endpoint,user_id:user.id,sub:j});if(error)throw error;pushOn=true;note('Avisos ativados neste telemóvel.');try{reg.showNotification('Axion',{body:'Avisos ativos. É assim que vais receber os recados.',icon:'./icons/icon-192.png',badge:'./icons/badge-96.png'})}catch(_){}}catch(e){note('Não foi possível ativar os avisos: '+((e&&e.message)||e),9000)}renderAcc()}
 function renderAcc(){const a=$('acc');a.className='acc';let o='';
   if(instEv)o+=`<p><button class="btn y" type="button" id="instB">Instalar o Axion neste telemóvel</button></p>`;
   else if(isIOS&&!standalone)o+=`<p>Para instalar no iPhone: no Safari toca em <b>Partilhar</b> e depois em <b>Adicionar ao ecrã principal</b>.</p>`;
