@@ -38,6 +38,14 @@ drop policy if exists "os meus telemoveis" on public.push_subs;
 create policy "os meus telemoveis" on public.push_subs
   for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
+-- Chaves dos avisos (geradas pela função; só o servidor lê)
+create table if not exists public.app_keys (
+  name  text primary key,
+  value text not null
+);
+alter table public.app_keys enable row level security;
+revoke all on public.app_keys from anon, authenticated;
+
 -- Sincronização ao vivo entre telemóveis
 alter table public.reminders replica identity full;
 do $$ begin

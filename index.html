@@ -681,7 +681,7 @@ let pushOn=false;
 async function pushState(){try{if(!('serviceWorker' in navigator)||!('PushManager' in window))return;const reg=await navigator.serviceWorker.ready;pushOn=!!(await reg.pushManager.getSubscription())&&Notification.permission==='granted'}catch(e){}renderAcc()}
 async function enablePush(){if(!('serviceWorker' in navigator)||!('PushManager' in window)){note(isIOS&&!standalone?'No iPhone, instala primeiro a app no ecrã principal.':'Este browser não suporta avisos.');return}
   try{const perm=await Notification.requestPermission();if(perm!=='granted'){note('Sem autorização para avisos. Ativa nas definições do telemóvel.');return}
-   const reg=await navigator.serviceWorker.ready;let su=await reg.pushManager.getSubscription();if(!su)su=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(CFG.vapidPublicKey)});
+   const reg=await navigator.serviceWorker.ready;let su=await reg.pushManager.getSubscription();if(!su){let pk=CFG.vapidPublicKey;if(!pk){const r=await fetch(CFG.supabaseUrl+'/functions/v1/send-due?pub=1');pk=(await r.json()).publicKey}su=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(pk)})}
    const j=su.toJSON();const {error}=await sb.from('push_subs').upsert({endpoint:j.endpoint,user_id:user.id,sub:j});if(error)throw error;pushOn=true;note('Avisos ativados neste telemóvel.')}catch(e){note('Não foi possível ativar os avisos.')}renderAcc()}
 function renderAcc(){const a=$('acc');a.className='acc';let o='';
   if(instEv)o+=`<p><button class="btn y" type="button" id="instB">Instalar o Axion neste telemóvel</button></p>`;

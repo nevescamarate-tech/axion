@@ -1,10 +1,9 @@
 // Configuração do Axion.
-// Sem estes valores a app funciona na mesma, mas só neste telemóvel e sem avisos com a app fechada.
-// Preenche com os dados do teu projeto Supabase (ver LEIA-ME.md, passo 2).
+// Ligação ao servidor Supabase do Axion (projeto "axion", organização NBT Software).
 window.AXION_CONFIG = {
-  supabaseUrl: "",       // ex.: "https://abcdefgh.supabase.co"
-  supabaseAnonKey: "",   // chave "anon public" do projeto
-  vapidPublicKey: "BN96gqGViNm0GLr5qf1pss3YOGWTOAMmzPRIKxxwOn5ZUnrldCVmD8o1yUX_MZGyfPmvwKS-fCWgGoZQ6kPsbl4",
+  supabaseUrl: "https://lxoeuyrlbopqatsqaprz.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4b2V1eXJsYm9wcWF0c3FhcHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5MjY5MjQsImV4cCI6MjExMDUwMjkyNH0.C7l_FdQN3V-hvHblJ4HYL9QBXEbtBo6fePxWjDqGnfw",  // chave pública (segura com as regras de acesso ativas)
+  vapidPublicKey: "",  // vazio: a app pede a chave ao servidor
   // PINs de acesso (guardados cifrados). Para tirar o acesso a alguém, apaga a linha do PIN dele.
   pinSalt: "axion-nbt-2026",
   pins: [

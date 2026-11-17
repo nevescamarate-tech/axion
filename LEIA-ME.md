@@ -9,7 +9,7 @@ Endereço (depois do passo 1): **https://nevescamarate-tech.github.io/axion/**
 | Ficheiro | Para quê |
 | --- | --- |
 | `index.html` | A app |
-| `config.js` | Ligação ao Supabase (preencher no passo 2.6) |
+| `config.js` | Ligação ao Supabase e PINs de acesso |
 | `manifest.webmanifest`, `icons/` | Nome, ícone e instalação no telemóvel |
 | `sw.js` | Funciona sem rede e mostra os avisos |
 | `supabase/1-tabelas.sql` | Tabelas e regras de acesso |
@@ -22,22 +22,14 @@ Sem o passo 2 a app já funciona, mas só no telemóvel onde foi usada e sem avi
 
 O código fica no repositório `nevescamarate-tech/axion`. O GitHub Pages publica-o no endereço acima.
 
-## 2. Supabase: contas, sincronização e avisos (cerca de 20 minutos, grátis)
+## 2. Supabase: contas, sincronização e avisos (feito)
 
-1. Entra em **supabase.com**, cria conta e carrega em **New project**.
-   - Nome: `axion`
-   - Região: **West EU (Ireland)** ou **Central EU (Frankfurt)**
-   - Guarda a password da base de dados num sítio seguro.
-2. **SQL Editor › New query**: cola o conteúdo de `supabase/1-tabelas.sql` e carrega em **Run**.
-3. **Authentication › URL Configuration**:
-   - Site URL: `https://nevescamarate-tech.github.io/axion/`
-   - Redirect URLs: acrescenta o mesmo endereço.
-4. **Edge Functions › Secrets**: cria os três valores que estão no ficheiro `segredos-axion.txt`: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` e `VAPID_SUBJECT`. Esse ficheiro **não** vai para o GitHub.
-5. **Edge Functions › Deploy a new function › Via Editor**:
-   - Nome: `send-due`
-   - Apaga o exemplo, cola o conteúdo de `supabase/functions/send-due/index.ts` e carrega em **Deploy**.
-6. **Project Settings › API**: copia o **Project URL** e a chave **anon public**. Manda-as ao Claude para ele as pôr no `config.js`, ou edita tu o ficheiro no GitHub.
-7. **SQL Editor**: abre `supabase/3-agendar-avisos.sql`, troca `O_TEU_PROJETO` e `A_TUA_CHAVE_ANON` pelos teus valores e carrega em **Run**.
+- Organização **NBT Software**, projeto `lxoeuyrlbopqatsqaprz`, região Europa, plano grátis.
+- Tabelas e regras de acesso: `supabase/1-tabelas.sql`.
+- Função `send-due` publicada, sem verificação JWT. Gera sozinha as chaves dos avisos e guarda-as na tabela `app_keys`, que só o servidor lê. Nenhum segredo fica no GitHub.
+- Agendamento a cada minuto: `supabase/3-agendar-avisos.sql`.
+- Entrada por email: Site URL e Redirect URL apontam para o endereço da app.
+- O plano grátis só envia poucos emails de entrada por hora. Antes de abrir a muita gente, ligar um serviço de envio de emails (Authentication › Emails › SMTP).
 
 ## 3. Instalar nos telemóveis
 
