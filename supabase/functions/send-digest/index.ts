@@ -92,12 +92,12 @@ Deno.serve(async (req) => {
   const erros: string[] = [];
   for (const u of ul.users) {
     if (!u.email) continue;
-    if (force && body.email && u.email !== body.email) continue;
+    if (force && u.email !== body.email) continue;
     if (u.user_metadata?.resumo === false && !force) continue;
-    if (!force) {
-      const { error: dup } = await sb.from("sent_alerts").insert({ key: `resumo@${u.id}@${dia(now)}` });
-      if (dup) continue;
-    }
+    // Um resumo por dia; o teste (force) no máximo um a cada 10 minutos por pessoa.
+    const key = force ? `teste@${u.id}@${Math.floor(now / 6e5)}` : `resumo@${u.id}@${dia(now)}`;
+    const { error: dup } = await sb.from("sent_alerts").insert({ key });
+    if (dup) continue;
     const { data: rows } = await sb.from("reminders").select("data,feito").eq("user_id", u.id);
     const its = (rows ?? []).map((r) => ({ ...(r.data as It), feito: r.feito }));
     try { if (await enviar(u.email, String(u.user_metadata?.nome ?? ""), its, now)) enviados++; }
