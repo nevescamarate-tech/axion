@@ -285,7 +285,7 @@ main{padding-bottom:140px}
     <label class="lbl" style="margin-top:12px">O teu nome<input id="nome" autocomplete="given-name" placeholder="Ex.: Maria" style="min-height:46px;border:0;border-radius:12px;background:var(--sf2);padding:10px 12px;font-size:16px;color:var(--ink)"></label>
     <p>Também podes pôr um recado no calendário do telemóvel: abre-o e toca em <b>Google Calendar</b> ou <b>Outlook / iPhone</b>.</p>
     
-    <div class="cal"><button class="btn" id="allIcs" type="button" hidden>Pôr todos no calendário</button><button class="btn" id="exp" type="button">Copiar cópia de segurança</button><button class="btn" id="lockB" type="button">Bloquear este telemóvel</button></div>
+    <div class="cal"><button class="btn" id="allIcs" type="button" hidden>Pôr todos no calendário</button><button class="btn" id="exp" type="button">Copiar cópia de segurança</button><button class="btn" id="lockB" type="button">Bloquear este telemóvel</button><button class="btn" id="diagB" type="button">Diagnóstico dos avisos</button></div><pre id="diag" hidden style="white-space:pre-wrap;font:13px/1.5 ui-monospace,monospace;background:var(--sf2);border-radius:12px;padding:12px;margin-top:10px"></pre><div class="cal" hidden></div>
     <p>Para repor uma cópia, cola-a aqui:</p>
     <textarea id="imp" aria-label="Cópia para importar"></textarea>
     <div class="cal" style="margin-top:8px"><button class="btn" id="impB" type="button">Importar</button></div>
@@ -651,7 +651,23 @@ items=loadLocal();render();check();
  function key(k){if(busy||Date.now()<until)return;if(k==='del')cur=cur.slice(0,-1);else if(cur.length<6)cur+=k;dots();if(cur.length===6)tryPin()}
  $('pad').onclick=e=>{const b=e.target.closest('[data-k]');if(b)key(b.dataset.k)};
  addEventListener('keydown',e=>{if(lk.hidden)return;if(/^\d$/.test(e.key))key(e.key);else if(e.key==='Backspace')key('del')});
- $('lockB').onclick=()=>{try{localStorage.removeItem('axion.pin')}catch(e){}cur='';dots();$('pinMsg').textContent='';show()};
+ 
+$('diagB').onclick=async()=>{const L=[],ok=b=>b?'SIM':'NÃO',ua=navigator.userAgent;
+  L.push('Browser: '+(/SamsungBrowser/.test(ua)?'Samsung Internet':/EdgA/.test(ua)?'Edge':/Firefox/.test(ua)?'Firefox':/CriOS|Chrome/.test(ua)?'Chrome':/Safari/.test(ua)?'Safari':'outro'));
+  L.push('Sistema: '+(/Android ([\d.]+)/.exec(ua)?.[0]||/OS ([\d_]+)/.exec(ua)?.[0]||'?'));
+  L.push('Aberta como app instalada: '+ok(standalone));
+  L.push('Ligação segura (https): '+ok(location.protocol==='https:'));
+  L.push('Suporta notificações: '+ok('Notification' in window));
+  L.push('Autorização: '+('Notification' in window?Notification.permission:'—'));
+  L.push('Service worker: '+ok('serviceWorker' in navigator));
+  L.push('Push: '+ok('PushManager' in window));
+  let reg=null;try{reg=await Promise.race([navigator.serviceWorker.ready,new Promise(r=>setTimeout(()=>r(null),3000))])}catch(e){}
+  L.push('Service worker ativo: '+ok(!!reg));
+  try{const su=reg&&await reg.pushManager.getSubscription();L.push('Subscrição de avisos: '+ok(!!su))}catch(e){L.push('Subscrição: erro '+e.message)}
+  L.push('Servidor ligado: '+ok(!!sb));L.push('Sessão iniciada: '+(user?'SIM ('+user.email+')':'NÃO'));
+  try{const r=await fetch(CFG.supabaseUrl+'/functions/v1/send-due?pub=1');L.push('Servidor de avisos responde: '+ok(r.ok))}catch(e){L.push('Servidor de avisos: erro')}
+  $('diag').textContent=L.join('\n');$('diag').hidden=false};
+$('lockB').onclick=()=>{try{localStorage.removeItem('axion.pin')}catch(e){}cur='';dots();$('pinMsg').textContent='';show()};
 }
 // ---- ficheiro .ics ----
 dl={save:async({filename,data})=>{const u=URL.createObjectURL(new Blob([data],{type:'text/calendar'}));const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}};$('allIcs').hidden=false;render();
