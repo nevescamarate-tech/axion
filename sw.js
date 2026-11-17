@@ -1,5 +1,5 @@
 // Axion — service worker: funciona sem rede e mostra os avisos.
-const CACHE = 'axion-v9';
+const CACHE = 'axion-v10';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/badge-96.png'];
 
 self.addEventListener('install', e => {
