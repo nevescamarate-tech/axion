@@ -26,7 +26,7 @@
  --brand:#0f1b2d;--hv:#ff5a1f;--hvd:#e94a10;--late:light-dark(#d4302b,#ff6b63);--ok:light-dark(#0f9a63,#35c98d);--warn:#e8a200;
  --c-obra:light-dark(#4b5b6d,#a4b4c6);--c-ligar:light-dark(#0f9a63,#35c98d);--c-pc:light-dark(#5a4ff0,#a29bff);--c-compras:light-dark(#c38600,#f2c14b);--c-pessoal:light-dark(#cf3f82,#f286ba)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
-*{box-sizing:border-box;min-width:0}[hidden]{display:none!important}
+*{box-sizing:border-box;min-width:0}[hidden]{display:none!important}.exitB{margin-left:8px;min-height:32px;padding:4px 12px;border:1px solid currentColor;border-radius:99px;background:transparent;color:inherit;font:inherit;font-size:13px;opacity:.75;cursor:pointer}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Geist,system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -269,7 +269,7 @@ main{padding-bottom:140px}
 <div class="wrap">
   <header class="hd">
     <div>
-      <div class="date"><span class="brand">Axion</span><span id="hoje"></span><span class="sync" id="sync">Neste aparelho</span></div>
+      <div class="date"><span class="brand">Axion</span><span id="hoje"></span><span class="sync" id="sync">Neste aparelho</span><button type="button" id="exitB" class="exitB" aria-label="Sair da app">Sair</button></div>
       <h1 id="ola">Olá</h1>
       <p class="sum" id="sum"></p>
     </div>
@@ -667,6 +667,7 @@ $('diagB').onclick=async()=>{const L=[],ok=b=>b?'SIM':'NÃO',ua=navigator.userAg
   L.push('Servidor ligado: '+ok(!!sb));L.push('Sessão iniciada: '+(user?'SIM ('+user.email+')':'NÃO'));
   try{const r=await fetch(CFG.supabaseUrl+'/functions/v1/send-due?pub=1');L.push('Servidor de avisos responde: '+ok(r.ok))}catch(e){L.push('Servidor de avisos: erro')}
   $('diag').textContent=L.join('\n');$('diag').hidden=false};
+$('exitB').onclick=()=>{try{localStorage.removeItem('axion.pin')}catch(e){}cur='';dots();$('pinMsg').textContent='';show();try{window.close()}catch(e){}};
 $('lockB').onclick=()=>{try{localStorage.removeItem('axion.pin')}catch(e){}cur='';dots();$('pinMsg').textContent='';show()};
 }
 // ---- ficheiro .ics ----
